@@ -159,23 +159,25 @@ def get_best_replacement_edge(p:dict[tuple,int]):
     erj,pj = sorted(p.values(),key=lambda x:x[1])[0]
     return erj,pj 
 
-for i in range(2,12):
-    edges,degree_bounds = generate_instance(i,seed=time.time())
-    # print(f'Test para {i} vértices y {len(edges)} aristas \n')
-    # Construimos G
-    G = nx.Graph()
-    G.add_weighted_edges_from(edges)
-
-    # Aplicamos dual method
-    T = nx.minimum_spanning_tree(G)
-    s = time.time()
-    min_cost,T = dual_method(G,T,degree_bounds)
-    f = time.time()
-    # print(f'Dual method: \n- costo: {min_cost}\n- tiempo: {f-s}')
-
-    # Hallamos el costo por fuerza bruta
-    s = time.time()
-    min_cost,T = get_dcmst(G,degree_bounds)
-    f = time.time()
-    # print(f'Fuerza bruta:\n- costo: {min_cost} \n- tiempo: {f-s}\n')
-    
+if __name__ == "__main__":
+    # Código de prueba - solo se ejecuta si se corre este archivo directamente
+    # for i in range(2,12):
+    #     edges,degree_bounds = generate_instance(i,seed=time.time())
+    #     # print(f'Test para {i} vértices y {len(edges)} aristas \n')
+    #     # Construimos G
+    #     G = nx.Graph()
+    #     G.add_weighted_edges_from(edges)
+    #
+    #     # Aplicamos dual method
+    #     T = nx.minimum_spanning_tree(G)
+    #     s = time.time()
+    #     min_cost,T = dual_method(G,T,degree_bounds)
+    #     f = time.time()
+    #     # print(f'Dual method: \n- costo: {min_cost}\n- tiempo: {f-s}')
+    #
+    #     # Hallamos el costo por fuerza bruta
+    #     s = time.time()
+    #     min_cost,T = get_dcmst(G,degree_bounds)
+    #     f = time.time()
+    #     # print(f'Fuerza bruta:\n- costo: {min_cost} \n- tiempo: {f-s}\n')
+    pass
