@@ -1,5 +1,5 @@
 import networkx as nx
-from test import get_cost
+from utils import *
 
 
 def select_excess_edges(T: nx.Graph, v: int, limite: int):
