@@ -107,6 +107,7 @@ def bruteforce(G:nx.Graph,degree_bound) -> tuple[int,nx.Graph]: # O(2^m), m = |E
     n = len(G.nodes)
     m = len(G.edges)
     min_cost = float('inf') # fijamos una cota superior para podas
+    best_edges = None  # Guardamos solo las aristas de la mejor solución, no el árbol completo
 
     # probamos todas las combinaciones posibles a escoger del conjunto de aristas
     for k in range(1,m+1):
