@@ -107,7 +107,7 @@ def bruteforce(G:nx.Graph,degree_bound) -> tuple[int,nx.Graph]: # O(2^m), m = |E
     n = len(G.nodes)
     m = len(G.edges)
     min_cost = float('inf') # fijamos una cota superior para podas
-    best_edges = None  # Guardamos solo las aristas de la mejor solución, no el árbol completo
+    # best_tree = None  # No guardamos el árbol para ahorrar memoria
 
     # probamos todas las combinaciones posibles a escoger del conjunto de aristas
     for k in range(1,m+1):
@@ -121,7 +121,11 @@ def bruteforce(G:nx.Graph,degree_bound) -> tuple[int,nx.Graph]: # O(2^m), m = |E
             if actual_cost >= min_cost: continue        # podamos aquellas soluciones que excedan nuestra mejor solución
             if nx.is_tree(T) and is_feasable(degree_bound,T):    # si el costo es potencialmente mejor que el mejor costo obtenido, verificamos que sea un árbol y que se cumpla la restricción de grado 
                 min_cost = get_cost(T)
-    return min_cost,T
+                # best_tree = T.copy()  # No guardamos el árbol para ahorrar memoria
+    # Retornar un grafo vacío con los nodos (no guardamos el árbol)
+    best_tree = nx.Graph()
+    best_tree.add_nodes_from(G)
+    return min_cost, best_tree
 
 
 
@@ -257,52 +261,54 @@ def get_best_replacement_edge(p:dict[tuple,int]):
     return j,ers,pj
 
 # region Zona de Pruebas
-G = nx.Graph()
-G.add_weighted_edges_from([('a','b',5),('b','c',3),('c','e',1),('c','d',9),('c','f',4),('e','f',2),('f','d',17),('d','h',8),('h','g',3),('g','i',1),('g','j',5),('i','j',2)])
-degree_bounds = {'e':1,'f':1,'a':2,'b':2,'d':2,'g':2,'h':2,'i':2,'j':2,'c':4}
+# Este código solo se ejecuta cuando se ejecuta el archivo directamente, no cuando se importa
+if __name__ == "__main__":
+    G = nx.Graph()
+    G.add_weighted_edges_from([('a','b',5),('b','c',3),('c','e',1),('c','d',9),('c','f',4),('e','f',2),('f','d',17),('d','h',8),('h','g',3),('g','i',1),('g','j',5),('i','j',2)])
+    degree_bounds = {'e':1,'f':1,'a':2,'b':2,'d':2,'g':2,'h':2,'i':2,'j':2,'c':4}
 
-G,T_star = reduction_dcmst(G,degree_bounds)
-T_star = kruskal_dcst(G,T_star,degree_bounds)
-print(nx.is_tree(T_star))
-print(get_cost(T_star))
+    G,T_star = reduction_dcmst(G,degree_bounds)
+    T_star = kruskal_dcst(G,T_star,degree_bounds)
+    print(nx.is_tree(T_star))
+    print(get_cost(T_star))
 
 
-for _ in range(20):
-    for i in range(2,100):
-        edges,degree_bounds = generate_instance(i,seed=time.time())
-        print(f'Test para {i} vértices y {len(edges)} aristas \n')
-        # Construimos G
-        G = nx.Graph()
-        G.add_weighted_edges_from(edges)
+    for _ in range(20):
+        for i in range(2,100):
+            edges,degree_bounds = generate_instance(i,seed=time.time())
+            print(f'Test para {i} vértices y {len(edges)} aristas \n')
+            # Construimos G
+            G = nx.Graph()
+            G.add_weighted_edges_from(edges)
 
-        if len(G.edges) < len(G) - 1: 
-            print('Hay menos aristas de las requeridas para que el grafo sea conexo.')
-            continue 
+            if len(G.edges) < len(G) - 1: 
+                print('Hay menos aristas de las requeridas para que el grafo sea conexo.')
+                continue 
 
-        # Kernelización
-        s = time.time()
-        G_prime,T_star = reduction_dcmst(G,degree_bounds)
-        T_star = kruskal_dcst(G_prime,T_star,degree_bounds)
-        f = time.time()
-        is_tree = nx.is_tree(T_star)
-        is_ok = False
-        if is_tree: is_ok = is_feasable(degree_bounds,T_star)
-        kernelization_cost = get_cost(T_star)
-        print(f'Kernelización: \n- costo: {kernelization_cost if is_tree and is_ok else float('inf')}\n- tiempo: {f-s}')
+            # Kernelización
+            s = time.time()
+            G_prime,T_star = reduction_dcmst(G,degree_bounds)
+            T_star = kruskal_dcst(G_prime,T_star,degree_bounds)
+            f = time.time()
+            is_tree = nx.is_tree(T_star)
+            is_ok = False
+            if is_tree: is_ok = is_feasable(degree_bounds,T_star)
+            kernelization_cost = get_cost(T_star)
+            print(f'Kernelización: \n- costo: {kernelization_cost if is_tree and is_ok else float("inf")}\n- tiempo: {f-s}')
 
-        # Dual Method
-        T_star = nx.minimum_spanning_tree(G)
-        s = time.time()
-        T_star = dual_method(G,T_star,degree_bounds)
-        f = time.time()
-        is_tree = nx.is_tree(T_star)
-        is_ok = False
-        if is_tree: is_ok = is_feasable(degree_bounds,T_star)
-        dual_cost = get_cost(T_star)
-        print(f'Método Dual: \n- costo: {dual_cost if is_tree and is_ok else float('inf')}\n- tiempo: {f-s}')
-        
-        # Hallamos el costo por fuerza bruta
-        # s = time.time()
-        # bruteforce_cost,T2 = bruteforce(G,degree_bounds)
-        # f = time.time()
-        # print(f'Fuerza bruta:\n- costo: {bruteforce_cost} \n- tiempo: {f-s}\n')
+            # Dual Method
+            T_star = nx.minimum_spanning_tree(G)
+            s = time.time()
+            T_star = dual_method(G,T_star,degree_bounds)
+            f = time.time()
+            is_tree = nx.is_tree(T_star)
+            is_ok = False
+            if is_tree: is_ok = is_feasable(degree_bounds,T_star)
+            dual_cost = get_cost(T_star)
+            print(f'Método Dual: \n- costo: {dual_cost if is_tree and is_ok else float("inf")}\n- tiempo: {f-s}')
+            
+            # Hallamos el costo por fuerza bruta
+            # s = time.time()
+            # bruteforce_cost,T2 = bruteforce(G,degree_bounds)
+            # f = time.time()
+            # print(f'Fuerza bruta:\n- costo: {bruteforce_cost} \n- tiempo: {f-s}\n')
