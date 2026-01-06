@@ -492,6 +492,81 @@ En esta sección se han presentado cuatro enfoques complementarios para abordar 
 
 Estos enfoques representan un equilibrio entre \textbf{exactitud y eficiencia}: la kernelización y la fuerza bruta aseguran la optimalidad o acotan el problema de forma segura, mientras que las heurísticas CH y AH permiten abordar instancias de mayor tamaño con soluciones de alta calidad y un costo computacional aceptable.
 
+\section{Resumen de la Experimentación}
+
+En esta sección se presenta un resumen detallado de los experimentos realizados para evaluar los algoritmos propuestos para el problema del Degree Constrained Minimum Spanning Tree (DCMST). Los experimentos se llevaron a cabo utilizando un conjunto de instancias generadas sintéticamente, variando parámetros como el número de vértices ($n$), la densidad de aristas, las restricciones de grado y otros factores. Se compararon los siguientes algoritmos: Kernelización + Kruskal modificado, Método Dual, Heurística CH (Christofides-inspired), Heurística AH (Analysis-based), y Fuerza Bruta (solo en instancias pequeñas). Las métricas principales evaluadas incluyen tasa de factibilidad, brecha de costo respecto al mejor algoritmo factible, tiempo de ejecución y otras medidas específicas por experimento.
+
+\subsection{Experimento 1: Instancias Pequeñas con Referencia Óptima}
+\textbf{Objetivo:} Evaluar la calidad de las heurísticas en instancias pequeñas donde es posible obtener soluciones óptimas mediante fuerza bruta.  
+\textbf{Método:} Se generaron instancias con $n$ entre 5 y 8, utilizando 4 semillas por tamaño. Se ejecutaron todos los algoritmos, incluyendo fuerza bruta cuando el número de aristas era $\leq 12$.  
+\textbf{Resultados Clave:} Las heurísticas CH y AH mostraron tiempos bajos y buena calidad, con brechas promedio menores al 10\% en muchos casos. Kernelización + Kruskal fue rápido pero falló en restricciones estrictas. Fuerza bruta sirvió como referencia óptima, confirmando que las heurísticas se aproximan bien al óptimo en estos casos.
+
+\subsection{Experimento 2: Escalabilidad en $n$}
+\textbf{Objetivo:} Analizar cómo escalan el tiempo y la factibilidad con el aumento del número de vértices.  
+\textbf{Método:} Instancias con $n$ de 10 a 50, 3 semillas por tamaño, sin fuerza bruta. Se midieron tiempos y tasas de factibilidad.  
+\textbf{Resultados Clave:} La factibilidad disminuyó para CH y AH en restricciones estrictas, indicando óptimos locales. Kernelización + Kruskal mantuvo tiempos bajos incluso para $n$ alto, siendo eficiente en general.
+
+\subsection{Experimento 3: Sensibilidad a Densidad y Restricciones}
+\textbf{Método:} Barrido de probabilidad de aristas (edge\_prob) y violación de grados (violation\_prob) con $n=20$ fijo, 5 semillas por combinación. Se generaron mapas de calor para factibilidad y brecha de costo.  
+\textbf{Resultados Clave:} Baja densidad de aristas y alta severidad de restricciones redujeron la factibilidad. Brechas altas indicaron alejamiento del óptimo, especialmente en escenarios difíciles.
+
+\subsection{Experimento 4: Robustez por Semillas}
+\textbf{Objetivo:} Medir la estabilidad de costo y factibilidad ante variaciones en la instancia.  
+\textbf{Método:} $n=30$ fijo, 30 semillas. Se calcularon medias y desviaciones estándar de brechas.  
+\textbf{Resultados Clave:} Diagramas de caja mostraron que algoritmos con cajas compactas son más estables. Outliers indicaron sensibilidad a instancias específicas.
+
+\subsection{Experimento 5: Reinicios (CH y AH)}
+\textbf{Objetivo:} Evaluar si múltiples reinicios mejoran la calidad al escapar de óptimos locales.  
+\textbf{Método:} $n=30$, 10 semillas, 5 reinicios por instancia. Se compararon costos medios con y sin reinicios.  
+\textbf{Resultados Clave:} Reinicios redujeron el costo promedio, justificando el costo computacional adicional lineal.
+
+\subsection{Experimento 6: Referencia MST sin Restricciones}
+\textbf{Objetivo:} Estimar el costo adicional por respetar restricciones de grado.  
+\textbf{Método:} $n=20$, 15 semillas. Se compararon costos del MST clásico (inviable) vs. el mejor factible.  
+\textbf{Resultados Clave:} La diferencia entre curvas representa el "costo de factibilidad". Muchas violaciones en MST indicaron restricciones estrictas.
+
+\subsection{Experimento 7: Restricciones Muy Estrictas}
+\textbf{Objetivo:} Medir el impacto de límites de grado muy bajos ($d(v) = \min(\text{grado en } G, 2)$).  
+\textbf{Método:} $n=25$, 10 semillas. Se evaluó factibilidad y tiempos.  
+\textbf{Resultados Clave:} Factibilidad se desplomó, acercando el problema a caminos Hamiltonianos. Heurísticas fallaron por óptimos locales.
+
+\subsection{Experimento 8: Impacto de Kernelización}
+\textbf{Objetivo:} Relacionar la reducción de aristas fijas con tiempo y factibilidad.  
+\textbf{Método:} $n$ de 10 a 40, 5 semillas por tamaño. Se midió el ratio de aristas fijas por kernelización.  
+\textbf{Resultados Clave:} Ratios altos indicaron que la reducción fija gran parte del árbol, mejorando factibilidad y tiempo en Kernel + Kruskal.
+
+\subsection{Experimento 9: Híbridos Encadenados}
+\textbf{Objetivo:} Evaluar si usar la salida de Kernel + Kruskal como entrada para el Método Dual mejora resultados.  
+\textbf{Método:} $n=25$, 10 semillas. Se compararon Dual sobre MST vs. Dual sobre salida de kernel.  
+\textbf{Resultados Clave:} Kernel + Dual mejoró factibilidad en algunos casos, ayudando a escapar de óptimos locales.
+
+\subsection{Experimento 10: Exacto por Fuerza Bruta}
+\textbf{Objetivo:} Comparar brechas reales vs. óptimo exacto en instancias muy pequeñas.  
+\textbf{Método:} $n$ de 6 a 9, 3 semillas, fuerza bruta cuando $m \leq 12$.  
+\textbf{Resultados Clave:} Brechas vs. exacto mostraron cuánto se alejan las heurísticas del óptimo, omitiendo si ILP no estaba disponible.
+
+\subsection{Experimento 11: Sensibilidad al Rango de Pesos}
+\textbf{Objetivo:} Ver si pesos más dispersos dificultan las heurísticas.  
+\textbf{Método:} $n=20$, 5 semillas, variando $w_{\max}$ (10, 30, 100).  
+\textbf{Resultados Clave:} Brechas crecieron con $w_{\max}$, indicando que pesos dispersos complican mejoras locales.
+
+\subsection{Experimento 12: Cuellos de Botella}
+\textbf{Objetivo:} Analizar relación entre nodos con grados bajos y factibilidad.  
+\textbf{Método:} $n=30$, 30 semillas. Se binned la tasa de factibilidad vs. ratio de nodos con $d(v) \leq 2$.  
+\textbf{Resultados Clave:} Ratios altos redujeron factibilidad, acercando a problemas de caminos.
+
+\subsection{Experimento 13: Prim/Kruskal Capados}
+\textbf{Objetivo:} Comparar versiones voraces que rechazan aristas violatorias.  
+\textbf{Método:} $n$ de 10 a 30, 5 semillas. Se incluyeron Capped Kruskal y Capped Prim.  
+\textbf{Resultados Clave:} Rápidos pero con más fallos; sirven como línea base adicional.
+
+\subsection{Experimento 14: Conectividad Residual en Fallos}
+\textbf{Objetivo:} Caracterizar fallos midiendo componentes conectadas residuales.  
+\textbf{Método:} $n=30$, 20 semillas. Se contaron componentes en árboles no factibles.  
+\textbf{Resultados Clave:} Más componentes indicaron dificultad para conectar; pocas sugirieron problemas solo de grados.
+
+En general, los experimentos mostraron que Kernelización + Kruskal es eficiente y robusto, mientras que CH y AH ofrecen buena calidad con reinicios. La kernelización reduce significativamente el espacio de búsqueda, y restricciones estrictas aumentan la dificultad. Estos resultados validan la efectividad de los enfoques híbridos para instancias reales.
+
 \begin{thebibliography}{99}
 \bibitem{narula1980}
 S.C. Narula and C. A. Ho, \textit{Degree-constrained minimum spanning tree}. Comput. Ops Res. 7, 239-249 (1980).
