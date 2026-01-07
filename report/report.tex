@@ -567,6 +567,58 @@ En esta sección se presenta un resumen detallado de los experimentos realizados
 
 En general, los experimentos mostraron que Kernelización + Kruskal es eficiente y robusto, mientras que CH y AH ofrecen buena calidad con reinicios. La kernelización reduce significativamente el espacio de búsqueda, y restricciones estrictas aumentan la dificultad. Estos resultados validan la efectividad de los enfoques híbridos para instancias reales.
 
+\section{Resultados Experimentales}
+
+En esta sección se presentan los resultados de los experimentos realizados, basados en el notebook \texttt{DC-MST.ipynb}. Se incluyen gráficos para ilustrar la comparación entre algoritmos en términos de factibilidad, brecha de costo y tiempos de ejecución.
+
+\subsection{Escalabilidad en n (Experimento 2)}
+
+En este experimento se evalúa cómo escalan los algoritmos con instancias de mayor tamaño ($n$ de 10 a 50). Se miden factibilidad, brecha de costo y tiempos de ejecución. El gráfico siguiente muestra el porcentaje de instancias factibles para cada algoritmo a medida que aumenta $n$. Este gráfico es crucial porque resalta que algoritmos como CH mantienen alta factibilidad incluso en instancias grandes, mientras que AH cae drásticamente, indicando sensibilidad a la complejidad estructural. Conclusión: Para aplicaciones prácticas, CH es preferible cuando la factibilidad es prioritaria sobre el costo óptimo.
+
+\includegraphics[width=0.8\textwidth]{../src/factibilidad_vs_n.png}
+
+\vspace{0.5cm}
+
+La brecha de costo respecto al mejor algoritmo encontrado se ilustra en el gráfico siguiente. Aquí se observa que Kernel+Kruskal y AH tienen brechas bajas (cerca del óptimo), mientras que CH y Dual method muestran brechas mayores, reflejando su enfoque en factibilidad sobre calidad. Esto explica por qué AH es ideal para aproximaciones cercanas al óptimo, pero requiere instancias con restricciones manejables.
+
+\includegraphics[width=0.8\textwidth]{../src/brecha_costo_vs_n.png}
+
+\vspace{0.5cm}
+
+Finalmente, los tiempos de ejecución promedio en escala logarítmica. Este gráfico demuestra la eficiencia: Kernel+Kruskal es el más rápido (debido a la kernelización), seguido de CH, mientras que Dual method escala peor. Conclusión: Para tiempos limitados, priorizar kernelización; en escenarios con más tiempo, Dual method puede mejorar calidad.
+
+\includegraphics[width=0.8\textwidth]{../src/tiempo_vs_n.png}
+
+\subsection{Sensibilidad a densidad y restricciones (Experimento 3)}
+
+Este experimento varía la probabilidad de aristas (\texttt{edge\_prob}) y violaciones de grado (\texttt{violation\_prob}) con $n$ fijo en 20. Los heatmaps muestran cómo estos parámetros afectan factibilidad y brecha. El primer heatmap ilustra la factibilidad: valores altos en densidad baja y restricciones altas reducen la factibilidad para todos los algoritmos, ya que hay menos opciones de conexión. Conclusión: En grafos esparcidos o con grados estrictos, los algoritmos luchan, sugiriendo preprocesamiento adicional.
+
+\includegraphics[width=0.8\textwidth]{../src/heatmap_factibilidad.png}
+
+\vspace{0.5cm}
+
+El segundo heatmap muestra la brecha de costo: aumenta con restricciones severas, indicando que los algoritmos se alejan más del óptimo. Esto es importante porque resalta que en entornos reales con grados bajos, se necesita equilibrar densidad y restricciones para mantener calidad.
+
+\includegraphics[width=0.8\textwidth]{../src/heatmap_brecha.png}
+
+\subsection{Robustez por semillas (Experimento 4)}
+
+Con $n$ fijo en 30 y 30 semillas, se mide la variabilidad de brechas de costo. El boxplot muestra que CH tiene mayor dispersión (outliers altos), indicando inestabilidad por azar en el grafo, mientras que Kernel+Kruskal y AH son más consistentes. Conclusión: Para reproducibilidad, evitar CH en instancias variables; usar AH para estabilidad.
+
+\includegraphics[width=0.8\textwidth]{../src/robustez_semillas.png}
+
+\subsection{Referencia MST vs. mejor factible (Experimento 6)}
+
+Se compara el costo del MST clásico (sin restricciones) contra el mejor árbol factible encontrado. El gráfico muestra el costo para cada semilla: el eje X representa el índice de la semilla (de 0 a 14), y el eje Y el costo. La línea azul (MST) es continua porque siempre se calcula; la línea naranja (mejor factible) es discontinua porque en algunas semillas no se encontró solución factible (puntos marcados con 'x' en inf). El gap entre puntos indica semillas donde ningún algoritmo encontró una solución válida, destacando la dificultad de las restricciones. Conclusión: El MST subestima el costo real; en casos extremos, las restricciones hacen el problema infactible.
+
+\includegraphics[width=0.8\textwidth]{../src/costo_mst_vs_factible.png}
+
+\subsection{Conectividad residual en fallos (Experimento 14)}
+
+Cuando algoritmos fallan en encontrar soluciones factibles, se mide el número promedio de componentes desconectadas. Barras altas indican que el fallo es por falta de conexiones válidas, no solo grados. Conclusión: Fallos en Kernel+Kruskal sugieren necesidad de más kernelización; en CH, indica límites de construcción local.
+
+\includegraphics[width=0.8\textwidth]{../src/conectividad_fallos.png}
+
 \begin{thebibliography}{99}
 \bibitem{narula1980}
 S.C. Narula and C. A. Ho, \textit{Degree-constrained minimum spanning tree}. Comput. Ops Res. 7, 239-249 (1980).
