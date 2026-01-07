@@ -575,49 +575,69 @@ En esta sección se presentan los resultados de los experimentos realizados, bas
 
 En este experimento se evalúa cómo escalan los algoritmos con instancias de mayor tamaño ($n$ de 10 a 50). Se miden factibilidad, brecha de costo y tiempos de ejecución. El gráfico siguiente muestra el porcentaje de instancias factibles para cada algoritmo a medida que aumenta $n$. Este gráfico es crucial porque resalta que algoritmos como CH mantienen alta factibilidad incluso en instancias grandes, mientras que AH cae drásticamente, indicando sensibilidad a la complejidad estructural. Conclusión: Para aplicaciones prácticas, CH es preferible cuando la factibilidad es prioritaria sobre el costo óptimo.
 
-\includegraphics[width=0.8\textwidth]{../src/factibilidad_vs_n.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/factibilidad_vs_n.png}
 
-\vspace{0.5cm}
+\vspace{0.7cm}
 
 La brecha de costo respecto al mejor algoritmo encontrado se ilustra en el gráfico siguiente. Aquí se observa que Kernel+Kruskal y AH tienen brechas bajas (cerca del óptimo), mientras que CH y Dual method muestran brechas mayores, reflejando su enfoque en factibilidad sobre calidad. Esto explica por qué AH es ideal para aproximaciones cercanas al óptimo, pero requiere instancias con restricciones manejables.
 
-\includegraphics[width=0.8\textwidth]{../src/brecha_costo_vs_n.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/brecha_costo_vs_n.png}
 
-\vspace{0.5cm}
+\vspace{0.7cm}
 
 Finalmente, los tiempos de ejecución promedio en escala logarítmica. Este gráfico demuestra la eficiencia: Kernel+Kruskal es el más rápido (debido a la kernelización), seguido de CH, mientras que Dual method escala peor. Conclusión: Para tiempos limitados, priorizar kernelización; en escenarios con más tiempo, Dual method puede mejorar calidad.
 
-\includegraphics[width=0.8\textwidth]{../src/tiempo_vs_n.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/tiempo_vs_n.png}
 
 \subsection{Sensibilidad a densidad y restricciones (Experimento 3)}
 
-Este experimento varía la probabilidad de aristas (\texttt{edge\_prob}) y violaciones de grado (\texttt{violation\_prob}) con $n$ fijo en 20. Los heatmaps muestran cómo estos parámetros afectan factibilidad y brecha. El primer heatmap ilustra la factibilidad: valores altos en densidad baja y restricciones altas reducen la factibilidad para todos los algoritmos, ya que hay menos opciones de conexión. Conclusión: En grafos esparcidos o con grados estrictos, los algoritmos luchan, sugiriendo preprocesamiento adicional.
+Este experimento varía la probabilidad de aristas (\texttt{edge\_prob}) y violaciones de grado (\texttt{violation\_prob}) con $n$ fijo en 20. Los heatmaps muestran cómo estos parámetros afectan factibilidad y brecha. 
 
-\includegraphics[width=0.8\textwidth]{../src/heatmap_factibilidad.png}
+El eje X representa \texttt{edge\_prob} (densidad del grafo: bajo = grafo esparcido con pocas conexiones posibles; alto = grafo denso con muchas conexiones). Los números en el eje X son los valores específicos: 0.2 (20\% de aristas posibles existen), 0.4 (40\%), 0.6 (60\%).
 
-\vspace{0.5cm}
+El eje Y representa \texttt{violation\_prob} (severidad de restricciones: bajo = grados relajados; alto = grados estrictos, más difíciles de satisfacer). Los números en el eje Y son: 0.2 (grados bajos), 0.4 (medios), 0.6 (altos).
 
-El segundo heatmap muestra la brecha de costo: aumenta con restricciones severas, indicando que los algoritmos se alejan más del óptimo. Esto es importante porque resalta que en entornos reales con grados bajos, se necesita equilibrar densidad y restricciones para mantener calidad.
+El primer heatmap ilustra la factibilidad (porcentaje de instancias donde el algoritmo encuentra una solución válida). Colores: azul oscuro = baja factibilidad (cerca de 0\%); rojo claro = alta factibilidad (cerca de 100\%). Intuitivamente, en la esquina inferior izquierda (edge\_prob bajo, violation\_prob bajo): grafo esparcido pero grados relajados, factibilidad alta porque hay menos restricciones y se puede conectar fácilmente. En la esquina superior derecha (edge\_prob alto, violation\_prob alto): grafo denso pero grados estrictos, factibilidad baja porque es difícil satisfacer grados altos con muchas opciones. Conclusión: En grafos esparcidos o con grados estrictos, los algoritmos luchan, sugiriendo preprocesamiento adicional.
 
-\includegraphics[width=0.8\textwidth]{../src/heatmap_brecha.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/heatmap_factibilidad.png}
+
+\vspace{0.7cm}
+
+El segundo heatmap muestra la brecha de costo promedio (diferencia porcentual respecto al mejor algoritmo factible). Colores: azul oscuro = brecha baja (cerca del óptimo); rojo claro = brecha alta (lejos del óptimo). Aumenta cuando las restricciones son severas, ya que los algoritmos se alejan más del óptimo. Por ejemplo, en violation\_prob alto, la brecha crece porque es más difícil encontrar soluciones buenas. Esto es importante porque resalta que en entornos reales con grados bajos, se necesita equilibrar densidad y restricciones para mantener calidad.
+
+\centering
+\includegraphics[width=0.85\textwidth]{../src/heatmap_brecha.png}
 
 \subsection{Robustez por semillas (Experimento 4)}
 
 Con $n$ fijo en 30 y 30 semillas, se mide la variabilidad de brechas de costo. El boxplot muestra que CH tiene mayor dispersión (outliers altos), indicando inestabilidad por azar en el grafo, mientras que Kernel+Kruskal y AH son más consistentes. Conclusión: Para reproducibilidad, evitar CH en instancias variables; usar AH para estabilidad.
 
-\includegraphics[width=0.8\textwidth]{../src/robustez_semillas.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/robustez_semillas.png}
+
+\vspace{0.7cm}
 
 \subsection{Referencia MST vs. mejor factible (Experimento 6)}
 
 Se compara el costo del MST clásico (sin restricciones) contra el mejor árbol factible encontrado. El gráfico muestra el costo para cada semilla: el eje X representa el índice de la semilla (de 0 a 14), y el eje Y el costo. La línea azul (MST) es continua porque siempre se calcula; la línea naranja (mejor factible) es discontinua porque en algunas semillas no se encontró solución factible (puntos marcados con 'x' en inf). El gap entre puntos indica semillas donde ningún algoritmo encontró una solución válida, destacando la dificultad de las restricciones. Conclusión: El MST subestima el costo real; en casos extremos, las restricciones hacen el problema infactible.
 
-\includegraphics[width=0.8\textwidth]{../src/costo_mst_vs_factible.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/costo_mst_vs_factible.png}
+
+\vspace{0.7cm}
 
 \subsection{Conectividad residual en fallos (Experimento 14)}
 
 Cuando algoritmos fallan en encontrar soluciones factibles, se mide el número promedio de componentes desconectadas. Barras altas indican que el fallo es por falta de conexiones válidas, no solo grados. Conclusión: Fallos en Kernel+Kruskal sugieren necesidad de más kernelización; en CH, indica límites de construcción local.
 
-\includegraphics[width=0.8\textwidth]{../src/conectividad_fallos.png}
+\centering
+\includegraphics[width=0.85\textwidth]{../src/conectividad_fallos.png}
+
+\newpage
 
 \begin{thebibliography}{99}
 \bibitem{narula1980}
